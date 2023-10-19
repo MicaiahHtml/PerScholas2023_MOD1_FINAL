@@ -1,0 +1,14 @@
+If you build a you Game must have:
+
++ A two player game (either against the computer or against another player)
+- Example: Blackjack: A player plays against the dealer. The dealer is the computer - Example: Connect Four: Two players pass the game between themselves to take turns
+
++ A win state - a way for the player to win the game
+
++ High score can be considered a win state
+
++ A lose state - a way for the player to lose the game
+
++ A way to keep playing if the game is not over
+
++ Multiple rounds to play - a round must begin, end, and there must be a way to check if the game should continue or the overall game is won or lost

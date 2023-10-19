@@ -1,0 +1,13 @@
+a mouse that each score the mouse gets crazier
+to move, you can pounce bby clicking in a certain direction
+  + boolean checks if you are pouncing and prevents you from doing it too much
+
+- first, mouse is just standing still
+- second, mouse moves slowly
+- third, mouse moves faster
+- fourth, mouse moves faster and leaps away when you click
+- fifth, mouse holds a gun menacingly in the corner
+- six, mouse shoots at you slowly
+- seven, mouse shoots at you quickly
+- eight, mouse shoots more than 1 bullet
+- 
