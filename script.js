@@ -45,38 +45,9 @@ const cMath = {
   }
 };
 
-// function loadImages(arr, callback) {
-//   this.images = {};
-//   var loadedImageCount = 0;
-
-//   // Make sure arr is actually an array and any other error checking
-//   for (var i = 0; i < arr.length; i++){
-//       var img = new Image();
-//       img.onload = imageLoaded;
-//       img.src = arr[i];
-//       this.images[arr[i]] = img;
-//   }
-
-//   function imageLoaded(e) {
-//       loadedImageCount++;
-//       if (loadedImageCount >= arr.length) {
-//           callback();
-//       }
-//   }
-// }
 
 function GAMESTART(){
-  // var loader = loadImages([
-  //   'sprites/cat_image_alive.png',
-  //   'sprites/cat_image_ded.png',
-  //   'sprites/gunmouse.png',
-  //   'sprites/mouse_awake_normal.png',
-  //   'sprites/mouse_sleep.png'
-  //   ], function(){
-  //   for (var i = 0; i < loader.images.length; i++) {
-  //     allGameImages[i] = loader.images[i]; 
-  //   }
-  // });
+
   var loader = new PxLoader(); 
   allGameImages[0] = loader.addImage('sprites/cat_image_alive.png'),
   allGameImages[1] = loader.addImage('sprites/cat_image_ded.png'),
@@ -89,7 +60,6 @@ function GAMESTART(){
       player = new Player(100,100);
       enemyMouse = new ReincarnatingMouse(300,100, player);
       enemyMouse.initPhase();
-      // drawInterval = setInterval(() => {draw();}, 10);
     }  
   });
   loader.start(); 
@@ -121,8 +91,6 @@ function Player(x,y){ //cat
     this.sprite = allGameImages[0];
   }
   this.update = function(){
-    //ctx.fillStyle = "rgb(50, 200, 0)";
-    //ctx.fillRect(this.x, this.y, this.width, this.height);
     this.sprite ? this.displaySprite() : ctx.fillRect(this.x, this.y, this.width, this.height);
     this.displayHealth();
     this.isDead = (this.health < 1) ? true : false;
@@ -149,7 +117,7 @@ function Player(x,y){ //cat
 * PLAYER
 *
 */
-function ReincarnatingMouse(x,y, player){
+function ReincarnatingMouse(x,y, player){ //mouse
   this.width = 40;
   this.height = 40;
   this.x = x;
@@ -163,6 +131,13 @@ function ReincarnatingMouse(x,y, player){
   this.watchPlayer;
   this.spawnBulletIntervals;
   this.intervalMovement;
+  this.spinnyData = { 
+    dd: 6,
+    angle: 0,
+    cx: cvs.width/2,
+    cy: cvs.height/2,
+    radius: 150};
+
   this.update = function(){
     this.sprite ? this.displaySprite() : ctx.fillRect(this.x, this.y, this.width, this.height);
     //ctx.fillStyle = "rgb(150, 57, 36)";
@@ -174,7 +149,13 @@ function ReincarnatingMouse(x,y, player){
       this.phase++;
       this.initPhase();
     }
-    this.currentPhase();
+    if(this.phase > 10){
+      clearInterval(this.intervalMovement);
+      this.intervalMovement = null;
+      this.bullets = [];
+    }else{
+      this.currentPhase();
+    }
   }
   this.displaySprite = function(){
     if(this.phase == 1){
@@ -215,16 +196,19 @@ function ReincarnatingMouse(x,y, player){
   this.initPhase = function(){
     switch(this.phase){
       case 1:
+        //DESC: The mouse is still and quiet.
         console.log("phase 1");
         this.resetPosition();
         this.currentPhase = this.phaseOne;
         break;
       case 2:
+        //DESC: The mouse moves a little.
         console.log("phase 2");
         this.resetPosition();
         this.currentPhase = this.phaseTwo;
         break;
       case 3:
+        //DESC: The mouse moves a lot.
         console.log("phase 3");
         moveChange = 0;
         this.mX = cMath.randomNumber(-1,1);
@@ -233,12 +217,14 @@ function ReincarnatingMouse(x,y, player){
         this.currentPhase = this.phaseThree;
         break;
       case 4:
+        //DESC: The mouse runs.
         console.log("phase 4");
         this.resetPosition();
         this.watchPlayer = setInterval(calculateVxVy, 100);
         this.currentPhase = this.phaseFour;
         break;
       case 5:
+        //DESC: The mouse is sick of your games and pulls out the nine.
         console.log("phase 5");
         this.resetPosition();
         clearInterval(this.watchPlayer);
@@ -246,12 +232,14 @@ function ReincarnatingMouse(x,y, player){
         this.currentPhase = this.phaseFive;
         break;
       case 6:
+        //DESC: The mouse learns to fire off a couple slowly...
         console.log("phase 6");
         this.resetPosition();
         this.spawnBullet(player.getX(), player.getY(),0.01);
         this.currentPhase = this.phaseSix;
         break;
       case 7:
+        //DESC: "NOW WE'RE ROLLIN AHAHAHAHAHA"
         console.log("phase 7");
         this.resetPosition();
         this.bullets = [];
@@ -260,6 +248,8 @@ function ReincarnatingMouse(x,y, player){
         this.currentPhase = this.phaseSeven;
         break;
       case 8:
+        //DESC: The mouse figures you can actually dodge a gun and is now running from you.
+        // It also pulls out the shotty
         console.log("phase 8");
         this.resetPosition();
         this.bullets = [];
@@ -269,6 +259,7 @@ function ReincarnatingMouse(x,y, player){
         this.currentPhase = this.phaseEight;
         break;
       case 9:
+        //DESC: The mouse learns teleportation!
         console.log("phase 9");
         this.resetPosition();
         this.bullets = [];
@@ -278,8 +269,13 @@ function ReincarnatingMouse(x,y, player){
         break;
       case 10:
         console.log("phase 10");
+        this.resetPosition();
+        this.bullets = [];
+        clearInterval(this.spawnBulletIntervals);
+        this.spawnBulletIntervals = null;
         clearInterval(this.intervalMovement);
         this.intervalMovement = null;
+        this.currentPhase = this.phaseTen;
         break;
     }
   }
@@ -334,9 +330,11 @@ function ReincarnatingMouse(x,y, player){
     this.phaseFour();
     if(!this.spawnBulletIntervals){
       var self = this;
-      this.spawnBulletIntervals = setInterval(function(){self.spawnBullet(player.getX(), player.getY(),0.005)},1000);
-      this.spawnBulletIntervals = setInterval(function(){self.spawnBullet(player.getX() + 50, player.getY() + 50,0.005)},1000);
-      this.spawnBulletIntervals = setInterval(function(){self.spawnBullet(player.getX() - 50, player.getY() - 50,0.005)},1000);
+      this.spawnBulletIntervals = setInterval(function(){
+        self.spawnBullet(player.getX(), player.getY(),0.005);
+        self.spawnBullet(player.getX() + 50, player.getY() + 50,0.005);
+        self.spawnBullet(player.getX() - 50, player.getY() - 50,0.005);
+      },1000);
     }
     if(this.spawnBulletIntervals && this.bullets.length > 0){
       this.manageBullets();
@@ -354,6 +352,42 @@ function ReincarnatingMouse(x,y, player){
     if(this.spawnBulletIntervals && this.bullets.length > 0){
       this.manageBullets();
     }
+  }
+  this.phaseTen = function(){
+    if(!this.intervalMovement){
+      var self = this;
+      this.intervalMovement = setInterval(function(){self.spinRightRoundBaby()},10);
+    }
+    if(!this.spawnBulletIntervals){
+      var self = this;
+      this.spawnBulletIntervals = setInterval(function(){
+        self.spawnBullet(this.x, cvs.height, 0.005);
+        self.spawnBullet(this.x, 0 - cvs.height, 0.005);
+        self.spawnBullet(cvs.width, this.y, 0.005);
+        self.spawnBullet(cvs.width, 0 - this.y, 0.005);
+      },1000);
+      
+    }
+    if(this.spawnBulletIntervals && this.bullets.length > 0){
+      this.manageBullets();
+    }
+  }
+  this.spinRightRoundBaby = function(){
+    //window.requestAnimationFrame(this.spinRightRoundBaby.bind(this));
+
+    //Math loosely inspired by https://jsfiddle.net/rfqoyjuc/9/
+    
+    this.spinnyData.angle += Math.acos(1-Math.pow(this.spinnyData.dd/this.spinnyData.radius,2)/2);
+    let newX = this.spinnyData.cx + this.spinnyData.radius * Math.cos(this.spinnyData.angle);
+    let newY = this.spinnyData.cy + this.spinnyData.radius * Math.sin(this.spinnyData.angle);
+    this.x = newX;
+    this.y = newY;
+    // draw the centerpoint (DEBUG ONLY)
+    ctx.beginPath();
+    ctx.arc(this.spinnyData.cx, this.spinnyData.cy, this.spinnyData.radius, 0, Math.PI * 2, false);
+    ctx.closePath();
+    ctx.stroke();
+    
   }
 
 }
@@ -436,7 +470,7 @@ function draw(){
   ctx.font = '10px Arial';
   ctx.fillText(score, 300, 10);
   if(!isCountingUpScore){
-    if(player.health == 0){
+    if(player.health <= 0){
       isCountingUpScore = true;
       drawTimeout = setTimeout(() => {
         ctx.font = '50px Arial';
