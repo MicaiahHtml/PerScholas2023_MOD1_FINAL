@@ -16,4 +16,4 @@ You are an indoor cat, dreaming of a mouse. Catch the mouse with your mouse curs
 
 ## Details
 
-- PERSCHOLAS 2023 WOMEN IN SOFTWARE ENGINEERING (WiSE) MODULE 1 FINAL PROJECT DUE 11/6/'23
+<sub>PERSCHOLAS 2023 WOMEN IN SOFTWARE ENGINEERING (WiSE) MODULE 1 FINAL PROJECT DUE 11/6/'23</sub>
