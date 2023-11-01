@@ -130,6 +130,7 @@ function ReincarnatingMouse(x,y, player){ //mouse
   this.bullets = [];
   this.watchPlayer;
   this.spawnBulletIntervals;
+  this.p10TrapActive = false;
   this.intervalMovement, this.intervalMovement2;
   this.spinnyData = { 
     dd: 6,
@@ -146,11 +147,12 @@ function ReincarnatingMouse(x,y, player){ //mouse
     if(player){
       this.playerData = [player.x, player.y];
     }
-    if(cMath.intersects(this, player)){
+    if(cMath.intersects(this, player) && !this.p10TrapActive){
       this.phase++;
       this.initPhase();
     }
     if(this.phase > 10){
+      this.phase = 11;
       clearInterval(this.intervalMovement);
       clearInterval(this.intervalMovement2);
       this.intervalMovement = null;
@@ -278,6 +280,7 @@ function ReincarnatingMouse(x,y, player){ //mouse
         this.spawnBulletIntervals = null;
         clearInterval(this.intervalMovement);
         this.intervalMovement = null;
+        this.p10TrapActive = true;
         this.currentPhase = this.phaseTen;
         break;
     }
@@ -357,23 +360,32 @@ function ReincarnatingMouse(x,y, player){ //mouse
     }
   }
   this.phaseTen = function(){
-    if(!this.intervalMovement){
-      let self = this;
-      this.intervalMovement = setInterval(function(){self.spinRightRoundBaby();},10);
-      this.intervalMovement2 = setInterval(function(){self.spinnyData.angle += cMath.randomNumber(-180,180);},500);
-    }
-    if(!this.spawnBulletIntervals){
-      let self = this;
-      this.spawnBulletIntervals = setInterval(function(){
-        self.spawnBullet(0, cvs.height, 0.005);
-        self.spawnBullet(0, 0 - cvs.height, 0.005);
-        self.spawnBullet(cvs.width, 0, 0.005);
-        self.spawnBullet(0 - cvs.width, 0, 0.005);
-      },750);
-      
-    }
-    if(this.spawnBulletIntervals && this.bullets.length > 0){
-      this.manageBullets();
+    if(!this.p10TrapActive){
+      if(!this.intervalMovement){
+        let self = this;
+        this.intervalMovement = setInterval(function(){self.spinRightRoundBaby();},10);
+        this.intervalMovement2 = setInterval(function(){self.spinnyData.angle += cMath.randomNumber(-180,180);},500);
+      }
+      if(!this.spawnBulletIntervals){
+        let self = this;
+        this.spawnBulletIntervals = setInterval(function(){
+          self.spawnBullet(0, cvs.height, 0.005);
+          self.spawnBullet(0, 0 - cvs.height, 0.005);
+          self.spawnBullet(cvs.width, 0, 0.005);
+          self.spawnBullet(0 - cvs.width, 0, 0.005);
+        },750);
+        
+      }
+      if(this.spawnBulletIntervals && this.bullets.length > 0){
+        this.manageBullets();
+      }
+    }else{
+      this.x = cvs.width/2;
+      this.y = cvs.height/2;
+      if(cMath.intersects(this, player)){
+        this.resetPosition();
+        this.p10TrapActive = false;
+      }
     }
   }
   this.spinRightRoundBaby = function(){
@@ -470,7 +482,7 @@ function draw(){
   ctx.clearRect(0, 0, cvs.width, cvs.height);
   player.update();
   enemyMouse.update();
-  score = 100 * (enemyMouse.phase - 1);
+  score = (100 * (enemyMouse.phase - 1)) - (10 * (9 - player.health));
   ctx.font = '10px Arial';
   ctx.fillText(score, 300, 10);
   if(!isCountingUpScore){
