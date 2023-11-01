@@ -130,13 +130,14 @@ function ReincarnatingMouse(x,y, player){ //mouse
   this.bullets = [];
   this.watchPlayer;
   this.spawnBulletIntervals;
-  this.intervalMovement;
+  this.intervalMovement, this.intervalMovement2;
   this.spinnyData = { 
     dd: 6,
     angle: 0,
     cx: cvs.width/2,
     cy: cvs.height/2,
-    radius: 150};
+    radius: 150
+  };
 
   this.update = function(){
     this.sprite ? this.displaySprite() : ctx.fillRect(this.x, this.y, this.width, this.height);
@@ -151,7 +152,9 @@ function ReincarnatingMouse(x,y, player){ //mouse
     }
     if(this.phase > 10){
       clearInterval(this.intervalMovement);
+      clearInterval(this.intervalMovement2);
       this.intervalMovement = null;
+      this.intervalMovement2 = null;
       this.bullets = [];
     }else{
       this.currentPhase();
@@ -355,17 +358,18 @@ function ReincarnatingMouse(x,y, player){ //mouse
   }
   this.phaseTen = function(){
     if(!this.intervalMovement){
-      var self = this;
-      this.intervalMovement = setInterval(function(){self.spinRightRoundBaby()},10);
+      let self = this;
+      this.intervalMovement = setInterval(function(){self.spinRightRoundBaby();},10);
+      this.intervalMovement2 = setInterval(function(){self.spinnyData.angle += cMath.randomNumber(-180,180);},500);
     }
     if(!this.spawnBulletIntervals){
-      var self = this;
+      let self = this;
       this.spawnBulletIntervals = setInterval(function(){
-        self.spawnBullet(this.x, cvs.height, 0.005);
-        self.spawnBullet(this.x, 0 - cvs.height, 0.005);
-        self.spawnBullet(cvs.width, this.y, 0.005);
-        self.spawnBullet(cvs.width, 0 - this.y, 0.005);
-      },1000);
+        self.spawnBullet(0, cvs.height, 0.005);
+        self.spawnBullet(0, 0 - cvs.height, 0.005);
+        self.spawnBullet(cvs.width, 0, 0.005);
+        self.spawnBullet(0 - cvs.width, 0, 0.005);
+      },750);
       
     }
     if(this.spawnBulletIntervals && this.bullets.length > 0){
